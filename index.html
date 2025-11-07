@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Pulizie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .date-display {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .admin-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .admin-toggle:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+
+        .date-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .date-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date-input {
+            padding: 15px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .warning-message {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .warning-message button {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .warning-message button:hover {
+            background: #d97706;
+        }
+
+        .time-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .time-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .time-display-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .time-display-box {
+            flex: 1;
+            padding: 20px;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .time-display-box:active {
+            transform: scale(0.98);
+        }
+
+        .time-display-box span {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: 2px;
+        }
+
+        .time-picker-btn {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .time-picker-btn:active {
+            transform: scale(0.95);
+        }
+
+        .quick-time-btn-full {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-time-btn-full:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .quick-time-btn-full:active {
+            transform: scale(0.98);
+        }
+
+        /* Time Picker Modal */
+        .time-picker-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .time-picker-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .time-picker-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .time-picker-body {
+            padding: 30px 20px;
+            position: relative;
+            background: #f9fafb;
+        }
+
+        .time-picker-wheel-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .time-picker-wheel {
+            width: 100px;
+            height: 200px;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            position: relative;
+        }
+
+        .time-picker-wheel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .time-picker-item {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #9ca3af;
+            scroll-snap-align: center;
+            transition: all 0.2s;
+        }
+
+        .time-picker-item.active {
+            color: #667eea;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .time-picker-separator {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            padding: 0 5px;
+        }
+
+        .time-picker-highlight {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 50px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .time-picker-footer {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .picker-cancel-btn,
+        .picker-confirm-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .picker-cancel-btn {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .picker-cancel-btn:active {
+            background: #d1d5db;
+        }
+
+        .picker-confirm-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .picker-confirm-btn:active {
+            transform: scale(0.98);
+        }
+
+        .time-quick-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .time-preset-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 12px 8px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-preset-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .time-preset-btn:active {
+            transform: translateY(0);
+        }
+
+        .quick-time-btn-small {
+            flex: 1;
+            min-width: 70px;
+            padding: 12px 8px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-time-btn-small:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .quick-time-btn-small:active {
+            transform: translateY(0);
+        }
+
+        .time-text-input {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            background: white;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+        }
+
+        .time-text-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .time-text-input::placeholder {
+            color: #9ca3af;
+            font-weight: 400;
+            letter-spacing: normal;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        .room-btn {
+            padding: 25px 15px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .room-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .room-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .save-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ADMIN STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .modal-content button:hover {
+            background: #5568d3;
+        }
+
+        .modal-content .cancel-btn {
+            background: #6b7280;
+        }
+
+        .modal-content .cancel-btn:hover {
+            background: #4b5563;
+        }
+
+        .filters {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #5568d3;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .calendar-day.empty {
+            border: none;
+            cursor: default;
+        }
+
+        .calendar-day.empty:hover {
+            transform: none;
+        }
+
+        .calendar-day.worked {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-color: #10b981;
+        }
+
+        .calendar-day-number {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .calendar-day-rooms {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .day-details {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .day-details h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .export-btn {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .export-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .delete-btn {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .calendar-month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-month-nav h3 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .calendar-month-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .calendar-month-nav button:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 768px) {
+            .time-controls {
+                gap: 20px;
+            }
+            
+            .time-display-box span {
+                font-size: 24px;
+            }
+            
+            .time-picker-btn {
+                padding: 16px 20px;
+                font-size: 14px;
+            }
+            
+            .quick-time-btn-full {
+                padding: 14px;
+                font-size: 14px;
+            }
+            
+            .rooms-grid {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+            
+            .calendar {
+                gap: 5px;
+            }
+            
+            .calendar-day {
+                padding: 4px;
+            }
+            
+            .calendar-day-number {
+                font-size: 14px;
+            }
+            
+            .calendar-day-rooms {
+                font-size: 10px;
+            }
+            
+            .time-picker-content {
+                width: 95%;
+            }
+            
+            .time-picker-wheel {
+                width: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧹 Registro Pulizie</h1>
+            <div class="date-display" id="currentDate"></div>
+            <button class="admin-toggle" onclick="toggleAdmin()">🔐 Admin</button>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('registro')">📝 Registro</button>
+                <button class="tab" onclick="switchTab('statistiche')">📊 Statistiche</button>
+                <button class="tab admin-only" style="display: none;" onclick="switchTab('calendario')">📅 Calendario</button>
+                <button class="tab admin-only" style="display: none;" onclick="switchTab('analisi')">📈 Analisi Avanzate</button>
+            </div>
+
+            <!-- TAB REGISTRO -->
+            <div id="registro" class="tab-content active">
+                <div class="section">
+                    <div class="section-title">📅 Data e Orario</div>
+                    <div class="date-selector">
+                        <label class="date-label">Data Lavoro:</label>
+                        <input type="date" id="workDate" class="date-input" onchange="checkExistingRecord()">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">⏰ Orario di Lavoro</div>
+                    
+                    <!-- Ora Inizio -->
+                    <div class="time-group">
+                        <label class="time-label">Ora Inizio</label>
+                        <div class="time-display-row" onclick="openTimePicker('start')">
+                            <div class="time-display-box">
+                                <span id="startTimeDisplay">--:--</span>
+                            </div>
+                            <button type="button" class="time-picker-btn">⏰ Seleziona</button>
+                        </div>
+                        <button type="button" class="quick-time-btn-full" onclick="fillCurrentTime('start')">
+                            🕐 Usa Ora Corrente
+                        </button>
+                    </div>
+                    
+                    <!-- Ora Fine -->
+                    <div class="time-group">
+                        <label class="time-label">Ora Fine</label>
+                        <div class="time-display-row" onclick="openTimePicker('end')">
+                            <div class="time-display-box">
+                                <span id="endTimeDisplay">--:--</span>
+                            </div>
+                            <button type="button" class="time-picker-btn">⏰ Seleziona</button>
+                        </div>
+                        <button type="button" class="quick-time-btn-full" onclick="fillCurrentTime('end')">
+                            🕐 Usa Ora Corrente
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🚪 Camere Pulite</div>
+                    <div class="rooms-grid" id="roomsGrid"></div>
+                </div>
+
+                <button class="save-btn" id="saveBtn" onclick="saveRecord()" disabled>
+                    💾 Salva Registrazione
+                </button>
+
+                <div id="warningMessage" style="display: none;"></div>
+                <div id="successMessage" style="display: none;"></div>
+            </div>
+
+            <!-- TAB STATISTICHE BASE -->
+            <div id="statistiche" class="tab-content">
+                <div class="section">
+                    <div class="section-title">📊 Statistiche Mese Corrente</div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalRooms">0</div>
+                            <div class="stat-label">Camere Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalHours">0h</div>
+                            <div class="stat-label">Ore Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgRooms">0</div>
+                            <div class="stat-label">Media Camere/Giorno</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="workDays">0</div>
+                            <div class="stat-label">Giorni Lavorati</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CALENDARIO (ADMIN) -->
+            <div id="calendario" class="tab-content">
+                <div class="calendar-month-nav">
+                    <button onclick="changeCalendarMonth(-1)">← Mese Prec.</button>
+                    <h3 id="calendarMonthTitle"></h3>
+                    <button onclick="changeCalendarMonth(1)">Mese Succ. →</button>
+                </div>
+                
+                <div class="calendar" id="calendarGrid"></div>
+                
+                <div id="dayDetailsSection" style="display: none;">
+                    <div class="day-details" id="dayDetails"></div>
+                </div>
+            </div>
+
+            <!-- TAB ANALISI AVANZATE (ADMIN) -->
+            <div id="analisi" class="tab-content">
+                <div class="filters">
+                    <h3 style="margin-bottom: 15px;">🔍 Filtri</h3>
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>Tipo Filtro:</label>
+                            <select id="filterType" onchange="updateFilterInputs()">
+                                <option value="month">Mese Specifico</option>
+                                <option value="year">Anno Completo</option>
+                                <option value="custom">Periodo Personalizzato</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group" id="monthFilter">
+                            <label>Mese:</label>
+                            <select id="filterMonth"></select>
+                        </div>
+                        
+                        <div class="filter-group" id="yearFilter">
+                            <label>Anno:</label>
+                            <select id="filterYear"></select>
+                        </div>
+                        
+                        <div class="filter-group" id="startDateFilter" style="display: none;">
+                            <label>Data Inizio:</label>
+                            <input type="date" id="filterStartDate">
+                        </div>
+                        
+                        <div class="filter-group" id="endDateFilter" style="display: none;">
+                            <label>Data Fine:</label>
+                            <input type="date" id="filterEndDate">
+                        </div>
+                    </div>
+                    <button class="filter-btn" onclick="applyFilters()">Applica Filtri</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">📊 Statistiche Periodo Selezionato</div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="adminTotalRooms">0</div>
+                            <div class="stat-label">Camere Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="adminTotalHours">0h</div>
+                            <div class="stat-label">Ore Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="adminAvgRooms">0</div>
+                            <div class="stat-label">Media Camere/Giorno</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="adminWorkDays">0</div>
+                            <div class="stat-label">Giorni Lavorati</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section admin-only">
+                    <div class="section-title">🛠️ Azioni Admin</div>
+                    <button class="export-btn" onclick="exportToCSV()">📄 Esporta CSV</button>
+                    <button class="export-btn delete-btn" onclick="clearData()">🗑️ Cancella Tutti i Dati</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PASSWORD ADMIN -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <h2>🔐 Accesso Admin</h2>
+            <input type="password" id="adminPassword" placeholder="Inserisci password">
+            <button onclick="checkAdminPassword()">Accedi</button>
+            <button class="cancel-btn" onclick="closeAdminModal()">Annulla</button>
+        </div>
+    </div>
+
+    <!-- MODAL TIME PICKER -->
+    <div class="modal" id="timePickerModal">
+        <div class="time-picker-content">
+            <div class="time-picker-header">
+                <h3>⏰ Seleziona Orario</h3>
+            </div>
+            <div class="time-picker-body">
+                <div class="time-picker-wheel-container">
+                    <div class="time-picker-wheel" id="hourWheel">
+                        <!-- Popolato da JS -->
+                    </div>
+                    <div class="time-picker-separator">:</div>
+                    <div class="time-picker-wheel" id="minuteWheel">
+                        <!-- Popolato da JS -->
+                    </div>
+                </div>
+                <div class="time-picker-highlight"></div>
+            </div>
+            <div class="time-picker-footer">
+                <button class="picker-cancel-btn" onclick="closeTimePicker()">Annulla</button>
+                <button class="picker-confirm-btn" onclick="confirmTimePicker()">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rooms = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
+        let selectedRooms = [];
+        let isAdmin = false;
+        const ADMIN_PASSWORD = "admin123"; // Cambia questa password!
+        let currentCalendarDate = new Date();
+        let isEditing = false;
+        let editingDate = null;
+        let currentPickerType = null; // 'start' o 'end'
+        let selectedHour = 8;
+        let selectedMinute = 0;
+
+        // Inizializzazione
+        function init() {
+            updateDateDisplay();
+            createRoomButtons();
+            loadStatistics();
+            initializeFilters();
+            checkAdminStatus();
+            
+            // Imposta data corrente nel campo
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('workDate').value = today;
+        }
+
+        function updateDateDisplay() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('it-IT', options);
+        }
+
+        function createRoomButtons() {
+            const grid = document.getElementById('roomsGrid');
+            grid.innerHTML = '';
+            rooms.forEach(room => {
+                const btn = document.createElement('button');
+                btn.className = 'room-btn';
+                btn.textContent = `Camera ${room}`;
+                btn.onclick = () => toggleRoom(room, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkExistingRecord() {
+            const selectedDate = document.getElementById('workDate').value;
+            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            const existing = records.find(r => r.date === selectedDate);
+            
+            const warningDiv = document.getElementById('warningMessage');
+            
+            if (existing && !isEditing) {
+                warningDiv.className = 'warning-message';
+                warningDiv.innerHTML = `
+                    <span>⚠️ Esiste già una registrazione per questa data!</span>
+                    <button onclick="editRecord('${selectedDate}')">Modifica</button>
+                `;
+                warningDiv.style.display = 'flex';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+        }
+
+        function editRecord(date) {
+            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            const record = records.find(r => r.date === date);
+            
+            if (!record) {
+                alert('Record non trovato!');
+                return;
+            }
+
+            // Passa al tab registro
+            switchTab('registro');
+            document.querySelector('.tab[onclick*="registro"]').click();
+            
+            // Imposta modalità modifica
+            isEditing = true;
+            editingDate = date;
+            
+            // Carica i dati nel form
+            document.getElementById('workDate').value = record.date;
+            
+            // Imposta gli orari nei display
+            document.getElementById('startTimeDisplay').textContent = record.startTime;
+            document.getElementById('endTimeDisplay').textContent = record.endTime;
+            
+            // Seleziona le camere
+            selectedRooms = [...record.rooms];
+            document.querySelectorAll('.room-btn').forEach(btn => {
+                const roomNum = parseInt(btn.textContent.replace('Camera ', ''));
+                if (selectedRooms.includes(roomNum)) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            // Aggiorna UI
+            document.getElementById('saveBtn').textContent = '✏️ Aggiorna Registrazione';
+            updateSaveButton();
+            
+            const warningDiv = document.getElementById('warningMessage');
+            warningDiv.className = 'warning-message';
+            warningDiv.innerHTML = `
+                <span>✏️ Stai modificando la registrazione del ${new Date(date).toLocaleDateString('it-IT')}</span>
+                <button onclick="cancelEdit()">Annulla</button>
+            `;
+            warningDiv.style.display = 'flex';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            isEditing = false;
+            editingDate = null;
+            resetForm();
+            document.getElementById('saveBtn').textContent = '💾 Salva Registrazione';
+            document.getElementById('warningMessage').style.display = 'none';
+        }
+
+        function deleteRecord(date) {
+            if (!confirm(`⚠️ Sei sicuro di voler eliminare la registrazione del ${new Date(date).toLocaleDateString('it-IT')}?\n\nQuesta operazione non può essere annullata.`)) {
+                return;
+            }
+            
+            let records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            records = records.filter(r => r.date !== date);
+            localStorage.setItem('cleaningRecords', JSON.stringify(records));
+            
+            // Aggiorna tutte le viste
+            loadStatistics();
+            loadCalendar();
+            applyFilters();
+            
+            document.getElementById('dayDetailsSection').style.display = 'none';
+            
+            alert('✅ Registrazione eliminata con successo!');
+        }
+
+        function toggleRoom(room, btn) {
+            const index = selectedRooms.indexOf(room);
+            if (index > -1) {
+                selectedRooms.splice(index, 1);
+                btn.classList.remove('selected');
+            } else {
+                selectedRooms.push(room);
+                btn.classList.add('selected');
+            }
+            updateSaveButton();
+        }
+
+        function fillCurrentTime(type) {
+            const now = new Date();
+            const timeString = now.toTimeString().slice(0, 5);
+            
+            if (type === 'start') {
+                document.getElementById('startTimeDisplay').textContent = timeString;
+            } else {
+                document.getElementById('endTimeDisplay').textContent = timeString;
+            }
+            
+            updateSaveButton();
+        }
+
+        function updateSaveButton() {
+            const startTime = document.getElementById('startTimeDisplay').textContent;
+            const endTime = document.getElementById('endTimeDisplay').textContent;
+            const btn = document.getElementById('saveBtn');
+            
+            const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+            const validStart = timeRegex.test(startTime);
+            const validEnd = timeRegex.test(endTime);
+            
+            btn.disabled = !(validStart && validEnd && selectedRooms.length > 0);
+        }
+
+        // TIME PICKER FUNCTIONS
+        function openTimePicker(type) {
+            currentPickerType = type;
+            
+            // Ottieni il tempo corrente o usa default
+            let currentTime = type === 'start' 
+                ? document.getElementById('startTimeDisplay').textContent 
+                : document.getElementById('endTimeDisplay').textContent;
+            
+            if (currentTime === '--:--') {
+                selectedHour = type === 'start' ? 8 : 13;
+                selectedMinute = 0;
+            } else {
+                const [h, m] = currentTime.split(':').map(Number);
+                selectedHour = h;
+                selectedMinute = m;
+            }
+            
+            initializeTimePicker();
+            document.getElementById('timePickerModal').classList.add('active');
+        }
+
+        function initializeTimePicker() {
+            const hourWheel = document.getElementById('hourWheel');
+            const minuteWheel = document.getElementById('minuteWheel');
+            
+            // Crea elementi ore (00-23)
+            hourWheel.innerHTML = '';
+            // Padding top e bottom per centrare
+            hourWheel.innerHTML += '<div style="height: 75px;"></div>';
+            for (let i = 0; i < 24; i++) {
+                const item = document.createElement('div');
+                item.className = 'time-picker-item';
+                item.textContent = String(i).padStart(2, '0');
+                item.dataset.value = i;
+                hourWheel.appendChild(item);
+            }
+            hourWheel.innerHTML += '<div style="height: 75px;"></div>';
+            
+            // Crea elementi minuti (00-59)
+            minuteWheel.innerHTML = '';
+            minuteWheel.innerHTML += '<div style="height: 75px;"></div>';
+            for (let i = 0; i < 60; i++) {
+                const item = document.createElement('div');
+                item.className = 'time-picker-item';
+                item.textContent = String(i).padStart(2, '0');
+                item.dataset.value = i;
+                minuteWheel.appendChild(item);
+            }
+            minuteWheel.innerHTML += '<div style="height: 75px;"></div>';
+            
+            // Scroll iniziale alle posizioni corrette
+            setTimeout(() => {
+                hourWheel.scrollTop = selectedHour * 50;
+                minuteWheel.scrollTop = selectedMinute * 50;
+                updatePickerHighlight();
+            }, 100);
+            
+            // Event listeners per scroll
+            hourWheel.addEventListener('scroll', () => {
+                clearTimeout(hourWheel.scrollTimeout);
+                hourWheel.scrollTimeout = setTimeout(() => {
+                    snapToNearest(hourWheel);
+                    updatePickerHighlight();
+                }, 150);
+            });
+            
+            minuteWheel.addEventListener('scroll', () => {
+                clearTimeout(minuteWheel.scrollTimeout);
+                minuteWheel.scrollTimeout = setTimeout(() => {
+                    snapToNearest(minuteWheel);
+                    updatePickerHighlight();
+                }, 150);
+            });
+        }
+
+        function snapToNearest(wheel) {
+            const scrollTop = wheel.scrollTop;
+            const itemHeight = 50;
+            const nearest = Math.round(scrollTop / itemHeight) * itemHeight;
+            
+            // Solo se è significativamente diverso
+            if (Math.abs(scrollTop - nearest) > 5) {
+                wheel.scrollTo({ top: nearest, behavior: 'smooth' });
+            }
+            
+            updatePickerHighlight();
+        }
+
+        function updatePickerHighlight() {
+            const hourWheel = document.getElementById('hourWheel');
+            const minuteWheel = document.getElementById('minuteWheel');
+            
+            if (!hourWheel || !minuteWheel) return;
+            
+            const itemHeight = 50;
+            
+            const hourIndex = Math.round(hourWheel.scrollTop / itemHeight);
+            const minuteIndex = Math.round(minuteWheel.scrollTop / itemHeight);
+            
+            // Aggiorna classe active
+            document.querySelectorAll('#hourWheel .time-picker-item').forEach((item, idx) => {
+                item.classList.toggle('active', idx === hourIndex);
+            });
+            
+            document.querySelectorAll('#minuteWheel .time-picker-item').forEach((item, idx) => {
+                item.classList.toggle('active', idx === minuteIndex);
+            });
+            
+            selectedHour = hourIndex;
+            selectedMinute = minuteIndex;
+        }
+
+        function confirmTimePicker() {
+            const timeString = String(selectedHour).padStart(2, '0') + ':' + 
+                             String(selectedMinute).padStart(2, '0');
+            
+            if (currentPickerType === 'start') {
+                document.getElementById('startTimeDisplay').textContent = timeString;
+            } else {
+                document.getElementById('endTimeDisplay').textContent = timeString;
+            }
+            
+            closeTimePicker();
+            updateSaveButton();
+        }
+
+        function closeTimePicker() {
+            document.getElementById('timePickerModal').classList.remove('active');
+        }
+
+        function calculateHours(start, end) {
+            const [startH, startM] = start.split(':').map(Number);
+            const [endH, endM] = end.split(':').map(Number);
+            const startMinutes = startH * 60 + startM;
+            const endMinutes = endH * 60 + endM;
+            const diff = endMinutes - startMinutes;
+            const hours = Math.floor(diff / 60);
+            const minutes = diff % 60;
+            return { hours, minutes, total: diff / 60 };
+        }
+
+        function saveRecord() {
+            const selectedDate = document.getElementById('workDate').value;
+            const startTime = document.getElementById('startTimeDisplay').textContent;
+            const endTime = document.getElementById('endTimeDisplay').textContent;
+            
+            const record = {
+                date: selectedDate,
+                startTime: startTime,
+                endTime: endTime,
+                rooms: [...selectedRooms],
+                totalRooms: selectedRooms.length
+            };
+
+            let records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            
+            if (isEditing) {
+                // Modifica record esistente
+                const index = records.findIndex(r => r.date === editingDate);
+                if (index !== -1) {
+                    records[index] = record;
+                }
+                
+                const msg = document.getElementById('successMessage');
+                msg.className = 'success-message';
+                msg.textContent = `✅ Registrazione aggiornata! ${selectedRooms.length} camere pulite`;
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+                
+                isEditing = false;
+                editingDate = null;
+                document.getElementById('saveBtn').textContent = '💾 Salva Registrazione';
+            } else {
+                // Controlla se esiste già un record per questa data
+                const existingIndex = records.findIndex(r => r.date === selectedDate);
+                if (existingIndex !== -1) {
+                    if (!confirm('Esiste già una registrazione per questa data. Vuoi sovrascriverla?')) {
+                        return;
+                    }
+                    records[existingIndex] = record;
+                } else {
+                    records.push(record);
+                }
+                
+                const msg = document.getElementById('successMessage');
+                msg.className = 'success-message';
+                msg.textContent = `✅ Registrazione salvata! ${selectedRooms.length} camere pulite`;
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            }
+            
+            localStorage.setItem('cleaningRecords', JSON.stringify(records));
+
+            resetForm();
+            loadStatistics();
+            if (isAdmin) {
+                loadCalendar();
+                applyFilters();
+            }
+        }
+
+        function resetForm() {
+            selectedRooms = [];
+            document.getElementById('startTimeDisplay').textContent = '--:--';
+            document.getElementById('endTimeDisplay').textContent = '--:--';
+            document.getElementById('saveBtn').disabled = true;
+            
+            // Reset data a oggi
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('workDate').value = today;
+            
+            document.querySelectorAll('.room-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            document.getElementById('warningMessage').style.display = 'none';
+            
+            // Reset stato modifica
+            isEditing = false;
+            editingDate = null;
+            document.getElementById('saveBtn').textContent = '💾 Salva Registrazione';
+        }
+
+        function loadStatistics() {
+            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const monthRecords = records.filter(r => {
+                const d = new Date(r.date);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+
+            const totalRooms = monthRecords.reduce((sum, r) => sum + r.totalRooms, 0);
+            let totalMinutes = 0;
+            
+            monthRecords.forEach(r => {
+                const { hours, minutes } = calculateHours(r.startTime, r.endTime);
+                totalMinutes += hours * 60 + minutes;
+            });
+
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalMins = totalMinutes % 60;
+
+            document.getElementById('totalRooms').textContent = totalRooms;
+            document.getElementById('totalHours').textContent = `${totalHours}h ${totalMins}m`;
+            document.getElementById('avgRooms').textContent = monthRecords.length > 0 ? 
+                (totalRooms / monthRecords.length).toFixed(1) : '0';
+            document.getElementById('workDays').textContent = monthRecords.length;
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+
+            if (tab === 'statistiche') {
+                loadStatistics();
+            } else if (tab === 'calendario') {
+                loadCalendar();
+            } else if (tab === 'analisi') {
+                applyFilters();
+            } else if (tab === 'registro') {
+                // Se non stiamo modificando, assicurati che il form sia pulito
+                if (!isEditing) {
+                    checkExistingRecord();
+                }
+            }
+        }
+
+        // ADMIN FUNCTIONS
+        function toggleAdmin() {
+            if (isAdmin) {
+                logoutAdmin();
+            } else {
+                document.getElementById('adminModal').classList.add('active');
+            }
+        }
+
+        function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                localStorage.setItem('isAdmin', 'true');
+                showAdminFeatures();
+                closeAdminModal();
+            } else {
+                alert('Password errata!');
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function logoutAdmin() {
+            isAdmin = false;
+            localStorage.removeItem('isAdmin');
+            hideAdminFeatures();
+            switchTab('registro');
+            document.querySelector('.tab[onclick="switchTab(\'registro\')"]').click();
+        }
+
+        function checkAdminStatus() {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                isAdmin = true;
+                showAdminFeatures();
+            }
+        }
+
+        function showAdminFeatures() {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = 'block';
+            });
+            document.querySelector('.admin-toggle').textContent = '🔓 Logout';
+            loadCalendar();
+        }
+
+        function hideAdminFeatures() {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelector('.admin-toggle').textContent = '🔐 Admin';
+        }
+
+        // CALENDAR FUNCTIONS
+        function loadCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            document.getElementById('calendarMonthTitle').textContent = 
+                currentCalendarDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            const monthRecords = {};
+            
+            records.forEach(r => {
+                const d = new Date(r.date);
+                if (d.getMonth() === month && d.getFullYear() === year) {
+                    monthRecords[d.getDate()] = r;
+                }
+            });
+
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const dayNames = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+            dayNames.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+
+            const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                
+                const record = monthRecords[day];
+                if (record) {
+                    dayEl.classList.add('worked');
+                    dayEl.innerHTML = `
+                        <div class="calendar-day-number">${day}</div>
+                        <div class="calendar-day-rooms">${record.totalRooms} 🚪</div>
+                    `;
+                    dayEl.onclick = () => showDayDetails(record);
+                } else {
+                    dayEl.innerHTML = `<div class="calendar-day-number">${day}</div>`;
+                }
+                
+                grid.appendChild(dayEl);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            loadCalendar();
+        }
+
+        function showDayDetails(record) {
+            const section = document.getElementById('dayDetailsSection');
+            const details = document.getElementById('dayDetails');
+            
+            const { hours, minutes } = calculateHours(record.startTime, record.endTime);
+            const date = new Date(record.date).toLocaleDateString('it-IT', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            details.innerHTML = `
+                <h3>📅 ${date}</h3>
+                <div class="detail-item">
+                    <span class="detail-label">⏰ Orario:</span>
+                    <span class="detail-value">${record.startTime} - ${record.endTime}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">🕐 Ore Lavorate:</span>
+                    <span class="detail-value">${hours}h ${minutes}m</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">🚪 Camere Pulite:</span>
+                    <span class="detail-value">${record.rooms.join(', ')}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">📊 Totale Camere:</span>
+                    <span class="detail-value">${record.totalRooms}</span>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="export-btn" onclick="editRecord('${record.date}')" style="flex: 1;">
+                        ✏️ Modifica
+                    </button>
+                    <button class="export-btn delete-btn" onclick="deleteRecord('${record.date}')" style="flex: 1;">
+                        🗑️ Elimina
+                    </button>
+                </div>
+            `;
+            
+            section.style.display = 'block';
+        }
+
+        // FILTER FUNCTIONS
+        function initializeFilters() {
+            const monthSelect = document.getElementById('filterMonth');
+            const months = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                          'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+            const currentMonth = new Date().getMonth();
+            
+            months.forEach((month, idx) => {
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = month;
+                if (idx === currentMonth) option.selected = true;
+                monthSelect.appendChild(option);
+            });
+
+            const yearSelect = document.getElementById('filterYear');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear - 2; year <= currentYear + 1; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('filterStartDate').value = today;
+            document.getElementById('filterEndDate').value = today;
+        }
+
+        function updateFilterInputs() {
+            const type = document.getElementById('filterType').value;
+            
+            document.getElementById('monthFilter').style.display = 
+                type === 'month' ? 'flex' : 'none';
+            document.getElementById('yearFilter').style.display = 
+                type === 'month' || type === 'year' ? 'flex' : 'none';
+            document.getElementById('startDateFilter').style.display = 
+                type === 'custom' ? 'flex' : 'none';
+            document.getElementById('endDateFilter').style.display = 
+                type === 'custom' ? 'flex' : 'none';
+        }
+
+        function applyFilters() {
+            const type = document.getElementById('filterType').value;
+            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            let filteredRecords = [];
+
+            if (type === 'month') {
+                const month = parseInt(document.getElementById('filterMonth').value);
+                const year = parseInt(document.getElementById('filterYear').value);
+                filteredRecords = records.filter(r => {
+                    const d = new Date(r.date);
+                    return d.getMonth() === month && d.getFullYear() === year;
+                });
+            } else if (type === 'year') {
+                const year = parseInt(document.getElementById('filterYear').value);
+                filteredRecords = records.filter(r => {
+                    const d = new Date(r.date);
+                    return d.getFullYear() === year;
+                });
+            } else if (type === 'custom') {
+                const startDate = new Date(document.getElementById('filterStartDate').value);
+                const endDate = new Date(document.getElementById('filterEndDate').value);
+                filteredRecords = records.filter(r => {
+                    const d = new Date(r.date);
+                    return d >= startDate && d <= endDate;
+                });
+            }
+
+            displayFilteredStats(filteredRecords);
+        }
+
+        function displayFilteredStats(records) {
+            const totalRooms = records.reduce((sum, r) => sum + r.totalRooms, 0);
+            let totalMinutes = 0;
+            
+            records.forEach(r => {
+                const { hours, minutes } = calculateHours(r.startTime, r.endTime);
+                totalMinutes += hours * 60 + minutes;
+            });
+
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalMins = totalMinutes % 60;
+
+            document.getElementById('adminTotalRooms').textContent = totalRooms;
+            document.getElementById('adminTotalHours').textContent = `${totalHours}h ${totalMins}m`;
+            document.getElementById('adminAvgRooms').textContent = records.length > 0 ? 
+                (totalRooms / records.length).toFixed(1) : '0';
+            document.getElementById('adminWorkDays').textContent = records.length;
+        }
+
+        function exportToCSV() {
+            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            if (records.length === 0) {
+                alert('Nessun dato da esportare');
+                return;
+            }
+
+            let csv = 'Data,Ora Inizio,Ora Fine,Ore Totali,Camere Pulite,Numero Camere\n';
+            records.forEach(r => {
+                const { hours, minutes } = calculateHours(r.startTime, r.endTime);
+                csv += `${r.date},${r.startTime},${r.endTime},${hours}:${String(minutes).padStart(2, '0')},${r.rooms.join('; ')},${r.totalRooms}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `registro_pulizie_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function clearData() {
+            if (confirm('⚠️ ATTENZIONE: Stai per cancellare TUTTI i dati!\n\nQuesta operazione è irreversibile.\n\nSei sicuro di voler continuare?')) {
+                localStorage.removeItem('cleaningRecords');
+                loadStatistics();
+                loadCalendar();
+                applyFilters();
+                alert('✅ Tutti i dati sono stati cancellati');
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
