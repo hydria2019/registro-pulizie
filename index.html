@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -43,26 +43,6 @@
         .date-display {
             font-size: 18px;
             opacity: 0.9;
-        }
-
-        .admin-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .admin-toggle:hover {
-            background: white;
-            color: #667eea;
         }
 
         .content {
@@ -896,15 +876,14 @@
         <div class="header">
             <h1>🧹 Registro Pulizie</h1>
             <div class="date-display" id="currentDate"></div>
-            <button class="admin-toggle" onclick="toggleAdmin()">🔐 Admin</button>
         </div>
 
         <div class="content">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('registro')">📝 Registro</button>
                 <button class="tab" onclick="switchTab('statistiche')">📊 Statistiche</button>
-                <button class="tab admin-only" style="display: none;" onclick="switchTab('calendario')">📅 Calendario</button>
-                <button class="tab admin-only" style="display: none;" onclick="switchTab('analisi')">📈 Analisi Avanzate</button>
+                <button class="tab" onclick="switchTab('calendario')">📅 Calendario</button>
+                <button class="tab" onclick="switchTab('analisi')">📈 Analisi Avanzate</button>
             </div>
 
             <!-- TAB REGISTRO -->
@@ -950,8 +929,13 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-title">🚪 Camere Pulite</div>
-                    <div class="rooms-grid" id="roomsGrid"></div>
+                    <div class="section-title">🚪 PARTENZE (Check-out)</div>
+                    <div class="rooms-grid" id="partenzeGrid"></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🧹 RIASSETTI (Pulizia giornaliera)</div>
+                    <div class="rooms-grid" id="riassettiGrid"></div>
                 </div>
 
                 <button class="save-btn" id="saveBtn" onclick="saveRecord()" disabled>
@@ -968,16 +952,20 @@
                     <div class="section-title">📊 Statistiche Mese Corrente</div>
                     <div class="stats">
                         <div class="stat-card">
+                            <div class="stat-value" id="totalPartenze">0</div>
+                            <div class="stat-label">Partenze Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalRiassetti">0</div>
+                            <div class="stat-label">Riassetti Totali</div>
+                        </div>
+                        <div class="stat-card">
                             <div class="stat-value" id="totalRooms">0</div>
                             <div class="stat-label">Camere Totali</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="totalHours">0h</div>
                             <div class="stat-label">Ore Totali</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="avgRooms">0</div>
-                            <div class="stat-label">Media Camere/Giorno</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="workDays">0</div>
@@ -1043,6 +1031,14 @@
                     <div class="section-title">📊 Statistiche Periodo Selezionato</div>
                     <div class="stats">
                         <div class="stat-card">
+                            <div class="stat-value" id="adminTotalPartenze">0</div>
+                            <div class="stat-label">Partenze Totali</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="adminTotalRiassetti">0</div>
+                            <div class="stat-label">Riassetti Totali</div>
+                        </div>
+                        <div class="stat-card">
                             <div class="stat-value" id="adminTotalRooms">0</div>
                             <div class="stat-label">Camere Totali</div>
                         </div>
@@ -1051,32 +1047,17 @@
                             <div class="stat-label">Ore Totali</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value" id="adminAvgRooms">0</div>
-                            <div class="stat-label">Media Camere/Giorno</div>
-                        </div>
-                        <div class="stat-card">
                             <div class="stat-value" id="adminWorkDays">0</div>
                             <div class="stat-label">Giorni Lavorati</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="section admin-only">
-                    <div class="section-title">🛠️ Azioni Admin</div>
+                <div class="section">
+                    <div class="section-title">🛠️ Esportazione</div>
                     <button class="export-btn" onclick="exportToCSV()">📄 Esporta CSV</button>
-                    <button class="export-btn delete-btn" onclick="clearData()">🗑️ Cancella Tutti i Dati</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- MODAL PASSWORD ADMIN -->
-    <div class="modal" id="adminModal">
-        <div class="modal-content">
-            <h2>🔐 Accesso Admin</h2>
-            <input type="password" id="adminPassword" placeholder="Inserisci password">
-            <button onclick="checkAdminPassword()">Accedi</button>
-            <button class="cancel-btn" onclick="closeAdminModal()">Annulla</button>
         </div>
     </div>
 
@@ -1107,9 +1088,8 @@
 
     <script>
         const rooms = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
-        let selectedRooms = [];
-        let isAdmin = false;
-        const ADMIN_PASSWORD = "admin123"; // Cambia questa password!
+        let selectedPartenze = [];
+        let selectedRiassetti = [];
         let currentCalendarDate = new Date();
         let isEditing = false;
         let editingDate = null;
@@ -1123,7 +1103,7 @@
             createRoomButtons();
             loadStatistics();
             initializeFilters();
-            checkAdminStatus();
+            loadCalendar(); // Carica sempre il calendario
             
             // Imposta data corrente nel campo
             const today = new Date().toISOString().split('T')[0];
@@ -1137,15 +1117,31 @@
         }
 
         function createRoomButtons() {
-            const grid = document.getElementById('roomsGrid');
-            grid.innerHTML = '';
-            rooms.forEach(room => {
-                const btn = document.createElement('button');
-                btn.className = 'room-btn';
-                btn.textContent = `Camera ${room}`;
-                btn.onclick = () => toggleRoom(room, btn);
-                grid.appendChild(btn);
-            });
+            // Crea pulsanti PARTENZE
+            const partenzeGrid = document.getElementById('partenzeGrid');
+            if (partenzeGrid) {
+                partenzeGrid.innerHTML = '';
+                rooms.forEach(room => {
+                    const btn = document.createElement('button');
+                    btn.className = 'room-btn';
+                    btn.textContent = `Camera ${room}`;
+                    btn.onclick = () => toggleRoom(room, btn, 'partenze');
+                    partenzeGrid.appendChild(btn);
+                });
+            }
+            
+            // Crea pulsanti RIASSETTI
+            const riassettiGrid = document.getElementById('riassettiGrid');
+            if (riassettiGrid) {
+                riassettiGrid.innerHTML = '';
+                rooms.forEach(room => {
+                    const btn = document.createElement('button');
+                    btn.className = 'room-btn';
+                    btn.textContent = `Camera ${room}`;
+                    btn.onclick = () => toggleRoom(room, btn, 'riassetti');
+                    riassettiGrid.appendChild(btn);
+                });
+            }
         }
 
         function checkExistingRecord() {
@@ -1191,11 +1187,24 @@
             document.getElementById('startTimeDisplay').textContent = record.startTime;
             document.getElementById('endTimeDisplay').textContent = record.endTime;
             
-            // Seleziona le camere
-            selectedRooms = [...record.rooms];
-            document.querySelectorAll('.room-btn').forEach(btn => {
+            // Seleziona le camere PARTENZE e RIASSETTI
+            selectedPartenze = record.partenze ? [...record.partenze] : [];
+            selectedRiassetti = record.riassetti ? [...record.riassetti] : [];
+            
+            // Seleziona i pulsanti partenze
+            document.querySelectorAll('#partenzeGrid .room-btn').forEach(btn => {
                 const roomNum = parseInt(btn.textContent.replace('Camera ', ''));
-                if (selectedRooms.includes(roomNum)) {
+                if (selectedPartenze.includes(roomNum)) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+            
+            // Seleziona i pulsanti riassetti
+            document.querySelectorAll('#riassettiGrid .room-btn').forEach(btn => {
+                const roomNum = parseInt(btn.textContent.replace('Camera ', ''));
+                if (selectedRiassetti.includes(roomNum)) {
                     btn.classList.add('selected');
                 } else {
                     btn.classList.remove('selected');
@@ -1245,13 +1254,15 @@
             alert('✅ Registrazione eliminata con successo!');
         }
 
-        function toggleRoom(room, btn) {
-            const index = selectedRooms.indexOf(room);
+        function toggleRoom(room, btn, type) {
+            const selectedArray = type === 'partenze' ? selectedPartenze : selectedRiassetti;
+            const index = selectedArray.indexOf(room);
+            
             if (index > -1) {
-                selectedRooms.splice(index, 1);
+                selectedArray.splice(index, 1);
                 btn.classList.remove('selected');
             } else {
-                selectedRooms.push(room);
+                selectedArray.push(room);
                 btn.classList.add('selected');
             }
             updateSaveButton();
@@ -1278,8 +1289,9 @@
             const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
             const validStart = timeRegex.test(startTime);
             const validEnd = timeRegex.test(endTime);
+            const hasRooms = selectedPartenze.length > 0 || selectedRiassetti.length > 0;
             
-            btn.disabled = !(validStart && validEnd && selectedRooms.length > 0);
+            btn.disabled = !(validStart && validEnd && hasRooms);
         }
 
         // TIME PICKER FUNCTIONS
@@ -1433,8 +1445,11 @@
                 date: selectedDate,
                 startTime: startTime,
                 endTime: endTime,
-                rooms: [...selectedRooms],
-                totalRooms: selectedRooms.length
+                partenze: [...selectedPartenze],
+                riassetti: [...selectedRiassetti],
+                totalPartenze: selectedPartenze.length,
+                totalRiassetti: selectedRiassetti.length,
+                totalRooms: selectedPartenze.length + selectedRiassetti.length
             };
 
             let records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
@@ -1448,7 +1463,7 @@
                 
                 const msg = document.getElementById('successMessage');
                 msg.className = 'success-message';
-                msg.textContent = `✅ Registrazione aggiornata! ${selectedRooms.length} camere pulite`;
+                msg.textContent = `✅ Registrazione aggiornata! ${record.totalPartenze} partenze, ${record.totalRiassetti} riassetti`;
                 msg.style.display = 'block';
                 setTimeout(() => { msg.style.display = 'none'; }, 3000);
                 
@@ -1469,7 +1484,7 @@
                 
                 const msg = document.getElementById('successMessage');
                 msg.className = 'success-message';
-                msg.textContent = `✅ Registrazione salvata! ${selectedRooms.length} camere pulite`;
+                msg.textContent = `✅ Registrazione salvata! ${record.totalPartenze} partenze, ${record.totalRiassetti} riassetti`;
                 msg.style.display = 'block';
                 setTimeout(() => { msg.style.display = 'none'; }, 3000);
             }
@@ -1478,14 +1493,13 @@
 
             resetForm();
             loadStatistics();
-            if (isAdmin) {
-                loadCalendar();
-                applyFilters();
-            }
+            loadCalendar();
+            applyFilters();
         }
 
         function resetForm() {
-            selectedRooms = [];
+            selectedPartenze = [];
+            selectedRiassetti = [];
             document.getElementById('startTimeDisplay').textContent = '--:--';
             document.getElementById('endTimeDisplay').textContent = '--:--';
             document.getElementById('saveBtn').disabled = true;
@@ -1517,7 +1531,9 @@
                 return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
             });
 
-            const totalRooms = monthRecords.reduce((sum, r) => sum + r.totalRooms, 0);
+            const totalPartenze = monthRecords.reduce((sum, r) => sum + (r.totalPartenze || r.partenze?.length || 0), 0);
+            const totalRiassetti = monthRecords.reduce((sum, r) => sum + (r.totalRiassetti || r.riassetti?.length || 0), 0);
+            const totalRooms = totalPartenze + totalRiassetti;
             let totalMinutes = 0;
             
             monthRecords.forEach(r => {
@@ -1528,10 +1544,10 @@
             const totalHours = Math.floor(totalMinutes / 60);
             const totalMins = totalMinutes % 60;
 
+            document.getElementById('totalPartenze').textContent = totalPartenze;
+            document.getElementById('totalRiassetti').textContent = totalRiassetti;
             document.getElementById('totalRooms').textContent = totalRooms;
             document.getElementById('totalHours').textContent = `${totalHours}h ${totalMins}m`;
-            document.getElementById('avgRooms').textContent = monthRecords.length > 0 ? 
-                (totalRooms / monthRecords.length).toFixed(1) : '0';
             document.getElementById('workDays').textContent = monthRecords.length;
         }
 
@@ -1554,62 +1570,6 @@
                     checkExistingRecord();
                 }
             }
-        }
-
-        // ADMIN FUNCTIONS
-        function toggleAdmin() {
-            if (isAdmin) {
-                logoutAdmin();
-            } else {
-                document.getElementById('adminModal').classList.add('active');
-            }
-        }
-
-        function checkAdminPassword() {
-            const password = document.getElementById('adminPassword').value;
-            if (password === ADMIN_PASSWORD) {
-                isAdmin = true;
-                localStorage.setItem('isAdmin', 'true');
-                showAdminFeatures();
-                closeAdminModal();
-            } else {
-                alert('Password errata!');
-            }
-        }
-
-        function closeAdminModal() {
-            document.getElementById('adminModal').classList.remove('active');
-            document.getElementById('adminPassword').value = '';
-        }
-
-        function logoutAdmin() {
-            isAdmin = false;
-            localStorage.removeItem('isAdmin');
-            hideAdminFeatures();
-            switchTab('registro');
-            document.querySelector('.tab[onclick="switchTab(\'registro\')"]').click();
-        }
-
-        function checkAdminStatus() {
-            if (localStorage.getItem('isAdmin') === 'true') {
-                isAdmin = true;
-                showAdminFeatures();
-            }
-        }
-
-        function showAdminFeatures() {
-            document.querySelectorAll('.admin-only').forEach(el => {
-                el.style.display = 'block';
-            });
-            document.querySelector('.admin-toggle').textContent = '🔓 Logout';
-            loadCalendar();
-        }
-
-        function hideAdminFeatures() {
-            document.querySelectorAll('.admin-only').forEach(el => {
-                el.style.display = 'none';
-            });
-            document.querySelector('.admin-toggle').textContent = '🔐 Admin';
         }
 
         // CALENDAR FUNCTIONS
@@ -1658,9 +1618,11 @@
                 const record = monthRecords[day];
                 if (record) {
                     dayEl.classList.add('worked');
+                    const partenze = record.totalPartenze || record.partenze?.length || 0;
+                    const riassetti = record.totalRiassetti || record.riassetti?.length || 0;
                     dayEl.innerHTML = `
                         <div class="calendar-day-number">${day}</div>
-                        <div class="calendar-day-rooms">${record.totalRooms} 🚪</div>
+                        <div class="calendar-day-rooms">P:${partenze} R:${riassetti}</div>
                     `;
                     dayEl.onclick = () => showDayDetails(record);
                 } else {
@@ -1688,6 +1650,9 @@
                 day: 'numeric' 
             });
             
+            const partenze = record.partenze || [];
+            const riassetti = record.riassetti || [];
+            
             details.innerHTML = `
                 <h3>📅 ${date}</h3>
                 <div class="detail-item">
@@ -1699,19 +1664,20 @@
                     <span class="detail-value">${hours}h ${minutes}m</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">🚪 Camere Pulite:</span>
-                    <span class="detail-value">${record.rooms.join(', ')}</span>
+                    <span class="detail-label">🚪 PARTENZE:</span>
+                    <span class="detail-value">${partenze.length > 0 ? partenze.join(', ') : 'Nessuna'}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">📊 Totale Camere:</span>
-                    <span class="detail-value">${record.totalRooms}</span>
+                    <span class="detail-label">🧹 RIASSETTI:</span>
+                    <span class="detail-value">${riassetti.length > 0 ? riassetti.join(', ') : 'Nessuno'}</span>
                 </div>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button class="export-btn" onclick="editRecord('${record.date}')" style="flex: 1;">
-                        ✏️ Modifica
-                    </button>
-                    <button class="export-btn delete-btn" onclick="deleteRecord('${record.date}')" style="flex: 1;">
-                        🗑️ Elimina
+                <div class="detail-item">
+                    <span class="detail-label">📊 Totale:</span>
+                    <span class="detail-value">${partenze.length + riassetti.length} camere (${partenze.length}P + ${riassetti.length}R)</span>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="export-btn" onclick="editRecord('${record.date}')" style="width: 100%;">
+                        ✏️ Modifica Registrazione
                     </button>
                 </div>
             `;
@@ -1793,7 +1759,9 @@
         }
 
         function displayFilteredStats(records) {
-            const totalRooms = records.reduce((sum, r) => sum + r.totalRooms, 0);
+            const totalPartenze = records.reduce((sum, r) => sum + (r.totalPartenze || r.partenze?.length || 0), 0);
+            const totalRiassetti = records.reduce((sum, r) => sum + (r.totalRiassetti || r.riassetti?.length || 0), 0);
+            const totalRooms = totalPartenze + totalRiassetti;
             let totalMinutes = 0;
             
             records.forEach(r => {
@@ -1804,10 +1772,10 @@
             const totalHours = Math.floor(totalMinutes / 60);
             const totalMins = totalMinutes % 60;
 
+            document.getElementById('adminTotalPartenze').textContent = totalPartenze;
+            document.getElementById('adminTotalRiassetti').textContent = totalRiassetti;
             document.getElementById('adminTotalRooms').textContent = totalRooms;
             document.getElementById('adminTotalHours').textContent = `${totalHours}h ${totalMins}m`;
-            document.getElementById('adminAvgRooms').textContent = records.length > 0 ? 
-                (totalRooms / records.length).toFixed(1) : '0';
             document.getElementById('adminWorkDays').textContent = records.length;
         }
 
@@ -1818,10 +1786,15 @@
                 return;
             }
 
-            let csv = 'Data,Ora Inizio,Ora Fine,Ore Totali,Camere Pulite,Numero Camere\n';
+            let csv = 'Data,Ora Inizio,Ora Fine,Ore Totali,Partenze,Riassetti,Totale Camere\n';
             records.forEach(r => {
                 const { hours, minutes } = calculateHours(r.startTime, r.endTime);
-                csv += `${r.date},${r.startTime},${r.endTime},${hours}:${String(minutes).padStart(2, '0')},${r.rooms.join('; ')},${r.totalRooms}\n`;
+                const partenze = r.partenze || [];
+                const riassetti = r.riassetti || [];
+                const partenzeStr = partenze.length > 0 ? partenze.join('; ') : '-';
+                const riassettiStr = riassetti.length > 0 ? riassetti.join('; ') : '-';
+                const totalRooms = partenze.length + riassetti.length;
+                csv += `${r.date},${r.startTime},${r.endTime},${hours}:${String(minutes).padStart(2, '0')},${partenzeStr},${riassettiStr},${totalRooms}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1830,16 +1803,6 @@
             a.href = url;
             a.download = `registro_pulizie_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-        }
-
-        function clearData() {
-            if (confirm('⚠️ ATTENZIONE: Stai per cancellare TUTTI i dati!\n\nQuesta operazione è irreversibile.\n\nSei sicuro di voler continuare?')) {
-                localStorage.removeItem('cleaningRecords');
-                loadStatistics();
-                loadCalendar();
-                applyFilters();
-                alert('✅ Tutti i dati sono stati cancellati');
-            }
         }
 
         init();
