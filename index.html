@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -870,6 +870,10 @@
             }
         }
     </style>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -1087,6 +1091,64 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCw5CIfFSMFo0BNc8j1NYhZvDzWrJ50akA",
+            authDomain: "registro-pulizie-3823e.firebaseapp.com",
+            projectId: "registro-pulizie-3823e",
+            storageBucket: "registro-pulizie-3823e.firebasestorage.app",
+            messagingSenderId: "184005476868",
+            appId: "1:184005476868:web:e02b1cd8864985afd46b51"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Firestore Helper Functions
+        async function saveRecordToFirestore(record) {
+            try {
+                await db.collection('cleaningRecords').doc(record.date).set(record);
+                console.log('✅ Salvato su Firebase:', record.date);
+                return true;
+            } catch (error) {
+                console.error('❌ Errore salvataggio Firebase:', error);
+                alert('⚠️ Errore di connessione. Dati salvati localmente, saranno sincronizzati quando possibile.');
+                return false;
+            }
+        }
+
+        async function loadRecordsFromFirestore() {
+            try {
+                const snapshot = await db.collection('cleaningRecords').orderBy('date', 'desc').get();
+                const records = [];
+                snapshot.forEach(doc => {
+                    records.push(doc.data());
+                });
+                console.log(`✅ Caricati ${records.length} record da Firebase`);
+                // Salva anche in localStorage come backup
+                localStorage.setItem('cleaningRecords', JSON.stringify(records));
+                return records;
+            } catch (error) {
+                console.error('❌ Errore caricamento Firebase:', error);
+                // Fallback a localStorage
+                const localRecords = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+                console.log(`📦 Usati ${localRecords.length} record da backup locale`);
+                return localRecords;
+            }
+        }
+
+        async function deleteRecordFromFirestore(date) {
+            try {
+                await db.collection('cleaningRecords').doc(date).delete();
+                console.log('✅ Eliminato da Firebase:', date);
+                return true;
+            } catch (error) {
+                console.error('❌ Errore eliminazione Firebase:', error);
+                return false;
+            }
+        }
+
         const rooms = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
         let selectedPartenze = [];
         let selectedRiassetti = [];
@@ -1436,7 +1498,7 @@
             return { hours, minutes, total: diff / 60 };
         }
 
-        function saveRecord() {
+        async function saveRecord() {
             const selectedDate = document.getElementById('workDate').value;
             const startTime = document.getElementById('startTimeDisplay').textContent;
             const endTime = document.getElementById('endTimeDisplay').textContent;
@@ -1452,6 +1514,10 @@
                 totalRooms: selectedPartenze.length + selectedRiassetti.length
             };
 
+            // Salva su Firebase
+            const saved = await saveRecordToFirestore(record);
+            
+            // Salva anche in localStorage come backup
             let records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
             
             if (isEditing) {
@@ -1492,9 +1558,9 @@
             localStorage.setItem('cleaningRecords', JSON.stringify(records));
 
             resetForm();
-            loadStatistics();
-            loadCalendar();
-            applyFilters();
+            await loadStatistics();
+            await loadCalendar();
+            await applyFilters();
         }
 
         function resetForm() {
@@ -1520,8 +1586,8 @@
             document.getElementById('saveBtn').textContent = '💾 Salva Registrazione';
         }
 
-        function loadStatistics() {
-            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+        async function loadStatistics() {
+            const records = await loadRecordsFromFirestore();
             const now = new Date();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
@@ -1573,7 +1639,7 @@
         }
 
         // CALENDAR FUNCTIONS
-        function loadCalendar() {
+        async function loadCalendar() {
             const year = currentCalendarDate.getFullYear();
             const month = currentCalendarDate.getMonth();
             
@@ -1583,7 +1649,7 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            const records = await loadRecordsFromFirestore();
             const monthRecords = {};
             
             records.forEach(r => {
@@ -1728,9 +1794,9 @@
                 type === 'custom' ? 'flex' : 'none';
         }
 
-        function applyFilters() {
+        async function applyFilters() {
             const type = document.getElementById('filterType').value;
-            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+            const records = await loadRecordsFromFirestore();
             let filteredRecords = [];
 
             if (type === 'month') {
@@ -1779,8 +1845,8 @@
             document.getElementById('adminWorkDays').textContent = records.length;
         }
 
-        function exportToCSV() {
-            const records = JSON.parse(localStorage.getItem('cleaningRecords') || '[]');
+        async function exportToCSV() {
+            const records = await loadRecordsFromFirestore();
             if (records.length === 0) {
                 alert('Nessun dato da esportare');
                 return;
