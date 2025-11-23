@@ -680,6 +680,11 @@
             margin-top: 20px;
         }
 
+        .calendar-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .calendar-header {
             text-align: center;
             font-weight: 600;
@@ -846,19 +851,27 @@
             }
             
             .calendar {
-                gap: 5px;
+                gap: 2px;
+                padding: 0 5px;
+                min-width: 320px;
             }
             
             .calendar-day {
-                padding: 4px;
+                padding: 2px;
+                font-size: 11px;
+            }
+            
+            .calendar-header {
+                padding: 6px 2px;
+                font-size: 11px;
             }
             
             .calendar-day-number {
-                font-size: 14px;
+                font-size: 13px;
             }
             
             .calendar-day-rooms {
-                font-size: 10px;
+                font-size: 9px;
             }
             
             .time-picker-content {
@@ -987,7 +1000,9 @@
                     <button onclick="changeCalendarMonth(1)">Mese Succ. →</button>
                 </div>
                 
-                <div class="calendar" id="calendarGrid"></div>
+                <div class="calendar-wrapper">
+                    <div class="calendar" id="calendarGrid"></div>
+                </div>
                 
                 <div id="dayDetailsSection" style="display: none;">
                     <div class="day-details" id="dayDetails"></div>
