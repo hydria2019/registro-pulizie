@@ -1119,8 +1119,8 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-
-        // Firestore Helper Functions
+        
+            // Firestore Helper Functions
         async function saveRecordToFirestore(record) {
             try {
                 await db.collection('cleaningRecords').doc(record.date).set(record);
